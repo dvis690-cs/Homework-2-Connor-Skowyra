@@ -1,0 +1,116 @@
+---
+title: "Connor Skowyra's HW2 Dashboard for Cars"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+<style>
+.navbar-inverse {
+  background-color: #d9230f;
+  border-color: #d9230f;
+}
+.navbar-inverse .navbar-brand {
+  color: white;
+}
+.sidebar {
+  background-color: #f6ebe9;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggplot2)
+library(dplyr)
+library(scales)
+
+# Prepare the data
+mtcars_clean <- mtcars %>%
+  mutate(
+    gear = factor(gear),
+    carb = factor(carb),
+    cyl = factor(cyl)
+  )
+```
+
+### Three Gear Cars Are Dominant
+
+```{r}
+gear_counts <- mtcars_clean %>% count(gear)
+ggplot(gear_counts, aes(x = gear, y = n)) +
+  geom_col(fill = "#ced4da") +
+  geom_text(aes(label = n), hjust = 1.5, color = "blue", size = 7) +
+  coord_flip() +
+  labs(
+    title = "Cars Per Gear",
+    x = "Gear",
+    y = "",
+    caption = "Source: mtcars data"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, hjust = 0.5),
+    axis.text.x = element_blank(),
+    axis.title.x = element_text(color = "black"),
+    axis.line.y = element_line(color = "black", linewidth = 1),
+    axis.title.y = element_text(face = "bold"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+```
+
+
+### Few Cars Have Six or More Carburators
+
+```{r}
+carb_counts <- mtcars_clean %>% count(carb)
+
+ggplot(carb_counts, aes(x = carb, y = n)) +
+geom_col(fill = "yellow") +
+geom_text(aes(label = n), vjust = -0.5, color = "darkgreen", size = 3) +
+labs(
+title = "Cars per Carburator",
+x = "Carburator",
+y = "",
+caption = "Source: mtcars data"
+) +
+theme_minimal() +
+theme(
+plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
+axis.text.y = element_blank(),
+axis.text.x = element_text(size = 12),
+axis.line.x = element_line(color = "black", linewidth = 1),
+axis.title.x = element_text(face = "bold"),
+panel.grid.major.x = element_blank(),
+panel.grid.major.y = element_blank(),
+panel.grid.minor.y = element_blank()
+)
+```
+
+### Five Gear Cars Utilizing Six and Eight Carburetor Setups
+
+```{r}
+ggplot(mtcars_clean, aes(x = cyl)) +
+geom_bar(fill = "red") +
+geom_text(
+stat = "count",
+aes(group = 1, label = percent(after_stat(count / sum(count)), accuracy = 1)),
+vjust = 1.5,
+size = 3,
+fontface = "bold"
+) +
+facet_grid(gear ~ carb, labeller = label_both) +
+labs(
+title = "Distribution of Cylinder Counts by Carburetors and Gears",
+x = "Cylinders",
+y = "Count",
+caption = "Source: MTCars Data"
+) +
+theme_bw() +
+theme(
+plot.title = element_text(size = 10),
+axis.text = element_text(size = 7)
+)
+```
+
